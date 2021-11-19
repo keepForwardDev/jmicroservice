@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="false">
+    <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
+    <springProperty scope="context" name="LOG_HOME" source="log.path" defaultValue="app-log"/>
+    <!-- 彩色日志 -->
+    <!-- 彩色日志依赖的渲染类 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+    <!-- 控制台彩色日志格式 -->
+    <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
+    <!-- 文件日志格式 -->
+    <property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss,SSS} %5p ${PID:- } [%t] %logger{35}: %m%n"></property>
+
+    <!-- Console 输出设置 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 文件输出设置 -->
+    <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <fileNamePattern>${LOG_HOME}/log.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!--日志文件保留天数-->
+            <maxHistory>7</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <maxFileSize>100MB</maxFileSize>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 日志输出级别 -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+        <!--<appender-ref ref="error"/>-->
+    </root>
+
+    <springProfile name="dev">
+        <!--各个服务的包在本地执行的时候，打开debug模式-->
+        <logger name="com.jcloud" level="debug" additivity="false">
+            <appender-ref ref="STDOUT"/>
+        </logger>
+    </springProfile>
+
+    <!-- -这里输出lo4gjdbc的sql日志-->
+    <logger name="jdbc.sqltiming" additivity="false" level="DEBUG">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </logger>
+    <logger name="jdbc.sqlonly" level="ERROR">
+        <appender-ref ref="FILE"/>
+    </logger>
+    <logger name="jdbc.audit" level="ERROR">
+        <appender-ref ref="FILE"/>
+    </logger>
+    <logger name="jdbc.resultset" level="ERROR">
+        <appender-ref ref="FILE"/>
+    </logger>
+    <logger name="jdbc.connection" level="ERROR">
+        <appender-ref ref="FILE"/>
+    </logger>
+</configuration>

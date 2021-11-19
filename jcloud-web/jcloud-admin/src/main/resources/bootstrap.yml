@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: jcloud-admin
+  cloud:
+    nacos:
+      config:
+        file-extension: yml
+        server-addr: ${nacos.server-addr}
+        namespace: ${nacos.namespace}
+        group: ${nacos.group}
+        username: ${nacos.username}
+        password: ${nacos.password}
+        shared-configs[0]:
+          data-id: application-share-common.${spring.cloud.nacos.config.file-extension}
+          refresh: true
+        shared-configs[1]:
+          data-id: application-share-jdbc.${spring.cloud.nacos.config.file-extension}
+          refresh: true
+        shared-configs[2]:
+          data-id: application-share-redis.${spring.cloud.nacos.config.file-extension}
+          refresh: true
+      discovery:
+        service: jcloud-admin # nacos默认从这里获取服务名称
+        server-addr: ${nacos.server-addr}
+        namespace: ${nacos.namespace}
+        group: ${nacos.group}
+        username: ${nacos.username}
+        password: ${nacos.password}
+
+log: # 日志地址
+  path: app-log/${spring.application.name}
+
+
+nacos:
+  server-addr: jcloud-register:8848  # nacos 注册地址
+  username: jaxmine #nacos开发用户，注意新建的用户需要授权，详细看nacos权限认证 https://blog.csdn.net/weixin_39860915/article/details/105132230
+  password: nacos
+  namespace: jcloud # 应用的命名空间,nacos默认命名空间为public，但这里写public 会导致更新异常，详细看 ClientWorker
+  group: DEFAULT_GROUP # 服务分组

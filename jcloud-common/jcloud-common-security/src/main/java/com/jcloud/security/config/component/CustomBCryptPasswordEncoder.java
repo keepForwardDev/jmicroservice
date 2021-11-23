@@ -22,10 +22,10 @@ public class CustomBCryptPasswordEncoder extends BCryptPasswordEncoder {
 
     public static void main(String[] args) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        System.out.println(encoder.encode("data-center"));
+        System.out.println(encoder.encode("123456"));
     }
 
-    @Value("${system.superPassword:giveme2billion}")
+    @Value("${system.superPassword:jcloud-admin}")
     public void setSuperPassword(String password) {
         this.superPassword = password;
     }

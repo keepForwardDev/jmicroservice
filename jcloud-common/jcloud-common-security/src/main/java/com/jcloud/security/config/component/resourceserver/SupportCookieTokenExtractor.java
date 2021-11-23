@@ -26,6 +26,9 @@ public class SupportCookieTokenExtractor extends BearerTokenExtractor {
                 }
             }
         }
+        if (StringUtils.isBlank(token)) {
+            token = null;
+        }
         return token;
     }
 }

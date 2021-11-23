@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jcloud.admin.bean.AppDetail;
 import com.jcloud.admin.entity.ClientDetails;
 import com.jcloud.admin.entity.ClientRole;
+import com.jcloud.admin.entity.Role;
 import com.jcloud.admin.entity.User;
 import com.jcloud.admin.mapper.ClientDetailsMapper;
 import com.jcloud.admin.mapper.ClientRoleMapper;
@@ -20,6 +21,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author jiaxm
@@ -47,6 +49,8 @@ public class ClientDetailsServiceImpl extends DefaultOrmService<ClientDetailsMap
                 detail.setCreateUserName(user.getName());
             }
         }
+        List<Role> roles = clientRoleMapper.findByClientId(clientDetails.getId());
+        detail.setRoleIds(roles.stream().map(r -> r.getId()).collect(Collectors.toList()));
         return detail;
     }
 

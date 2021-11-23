@@ -43,9 +43,8 @@ public class RemoteSwaggerService {
             swaggerResourceBean.setPathMap(pathMap);
             return swaggerResourceBean;
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new BizException("服务未开启！");
         }
-        return null;
     }
 
 

@@ -1,0 +1,28 @@
+{
+  "index": {
+    "max_result_window": 2000000000,
+    "analysis": {
+      "analyzer": {
+        "default": {
+          "type": "hanlp_index"
+        },
+        "comma": {
+          "type": "pattern",
+          "pattern": ","
+        },
+        "diagonalBar": {
+          "type": "pattern",
+          "pattern": "/"
+        },
+        "semicolon": {
+          "type": "pattern",
+          "pattern": ";"
+        },
+        "point": {
+          "type": "pattern",
+          "pattern": "."
+        }
+      }
+    }
+  }
+}

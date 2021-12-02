@@ -64,6 +64,11 @@
             <artifactId>jcloud-common-mq</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.jcloud</groupId>
+            <artifactId>jcloud-common-elasticsearch</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -38,4 +38,7 @@ public class LogFilter {
 
     @ApiModelProperty(value = "是否展示表格")
     private Boolean showTable;
+
+    @ApiModelProperty(value = "游标id")
+    private String id;
 }

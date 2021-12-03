@@ -18,4 +18,17 @@ public interface AppLogService {
      * @return
      */
     public ResponseData<AppLog> pageList(EsPage pager, LogFilter appLog);
+
+    /**
+     * 获取日志常量
+     * @return
+     */
+    public ResponseData getEnum();
+
+    /**
+     * 自动刷新
+     * @param totalCount
+     * @return
+     */
+    public ResponseData autoRefresh(Long totalCount);
 }

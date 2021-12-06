@@ -82,7 +82,7 @@ public class AppLogServiceImpl implements AppLogService {
         NativeSearchQuery nativeSearchQuery = new NativeSearchQuery(boolQueryBuilder);
         nativeSearchQuery.setTrackTotalHits(true);
         nativeSearchQuery.setPageable(PageRequest.of(pager.getCurrentPage() - 1, pager.getPageSize()));
-        nativeSearchQuery.addSort(Sort.by("createTime").descending());
+        nativeSearchQuery.addSort(Sort.by("createTime").descending()); // 注意在集群情况下这里的排序不准确，_doc就是Lucene索引文档时本地的先后顺序，在集群环境中各个节点的顺序并不是最终排序。这里为单节点，可以使用。
         return nativeSearchQuery;
     }
 
@@ -115,8 +115,10 @@ public class AppLogServiceImpl implements AppLogService {
         long total = elasticsearchRestTemplate.count(nativeSearchQuery, AppLog.class);
         if (total > totalCount) {
             Integer size = Long.valueOf(total - totalCount).intValue();
-            esPage.setPageSize(size);
-            FileSearch fileSearch = new FileSearch(logFilter, esPage);
+            Pageable pageable = PageRequest.of(0, size);
+            nativeSearchQuery.setPageable(pageable);
+            SearchHits<AppLog> searchHits = elasticsearchRestTemplate.search(nativeSearchQuery, AppLog.class);
+            FileSearch fileSearch = new FileSearch(searchHits, pageable);
             return fileSearch.getResponseData();
         }
         return ResponseData.getSuccessInstance();
@@ -159,10 +161,18 @@ public class AppLogServiceImpl implements AppLogService {
 
         Pageable pageable;
 
+        SearchHits<AppLog> searchHits;
+
         public FileSearch(LogFilter appLog, EsPage esPage) {
             this.appLog = appLog;
             this.esPage = esPage;
         }
+
+        public FileSearch(SearchHits<AppLog> searchHits, Pageable pageable) {
+            this.searchHits = searchHits;
+            this.pageable = pageable;
+        }
+
 
 
         private final SearchHits<AppLog> getSearchHits() {
@@ -181,11 +191,14 @@ public class AppLogServiceImpl implements AppLogService {
                     searchHits = elasticsearchRestTemplate.searchScrollStart(10, nativeSearchQuery, AppLog.class, IndexCoordinates.of("datacenterlog"));
                 }
             }
+            this.searchHits = searchHits;
             return searchHits;
         }
 
         public ResponseData getResponseData() {
-            SearchHits<AppLog> searchHits = getSearchHits();
+            if (this.searchHits == null) {
+                getSearchHits();
+            }
             SearchHitsImpl<AppLog> searchHitsImpl = (SearchHitsImpl<AppLog>) searchHits;
             CommonPage<AppLog> commonPage = SearchResultHelper.toPage(searchHits, pageable);
             StringBuilder stringBuilder = new StringBuilder();

@@ -28,7 +28,8 @@ public interface AppLogService {
     /**
      * 自动刷新
      * @param totalCount
+     * @param projectName
      * @return
      */
-    public ResponseData autoRefresh(Long totalCount);
+    public ResponseData autoRefresh(Long totalCount, String projectName);
 }

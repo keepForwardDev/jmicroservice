@@ -108,8 +108,9 @@ public class AppLogServiceImpl implements AppLogService {
         return ResponseData.getSuccessInstance(result);
     }
 
-    public ResponseData autoRefresh(Long totalCount) {
+    public ResponseData autoRefresh(Long totalCount, String projectName) {
         LogFilter logFilter = new LogFilter();
+        logFilter.setProjectName(projectName);
         EsPage esPage = new EsPage();
         NativeSearchQuery nativeSearchQuery = getNativeSearchQuery(esPage, logFilter);
         long total = elasticsearchRestTemplate.count(nativeSearchQuery, AppLog.class);

@@ -40,7 +40,7 @@ public class AppLogController {
 
     @ApiOperation(value = "日志刷新")
     @RequestMapping(value = "autoRefresh", method = RequestMethod.GET)
-    public ResponseData autoRefresh(Long totalCount) {
-        return appLogService.autoRefresh(totalCount);
+    public ResponseData autoRefresh(Long totalCount, String projectName) {
+        return appLogService.autoRefresh(totalCount, projectName);
     }
 }

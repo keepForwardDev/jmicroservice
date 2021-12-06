@@ -180,15 +180,15 @@ public class AppLogServiceImpl implements AppLogService {
             this.pageable = nativeSearchQuery.getPageable();
             SearchHits<AppLog> searchHits = null;
             if (nativeSearchQuery.getPageable().getPageNumber() == 0) { // 游标滚动查询
-                searchHits = elasticsearchRestTemplate.searchScrollStart(10, nativeSearchQuery, AppLog.class, IndexCoordinates.of("datacenterlog"));
+                searchHits = elasticsearchRestTemplate.searchScrollStart(60000, nativeSearchQuery, AppLog.class, IndexCoordinates.of("datacenterlog"));
             } else { // 否则必须传送游标id
                 try {
-                    searchHits = elasticsearchRestTemplate.searchScrollContinue(appLog.getId(), 10, AppLog.class, IndexCoordinates.of("datacenterlog"));
+                    searchHits = elasticsearchRestTemplate.searchScrollContinue(appLog.getId(), 60000, AppLog.class, IndexCoordinates.of("datacenterlog"));
                 } catch (Exception e) {
                     cursorExpired = true;
                     log.warn("当前游标已失效,继续从0开始:{}", appLog.getId());
                     nativeSearchQuery.setPageable(PageRequest.of(0, pageable.getPageSize()));
-                    searchHits = elasticsearchRestTemplate.searchScrollStart(10, nativeSearchQuery, AppLog.class, IndexCoordinates.of("datacenterlog"));
+                    searchHits = elasticsearchRestTemplate.searchScrollStart(60000, nativeSearchQuery, AppLog.class, IndexCoordinates.of("datacenterlog"));
                 }
             }
             this.searchHits = searchHits;

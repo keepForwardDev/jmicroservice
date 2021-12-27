@@ -27,6 +27,7 @@ import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,6 @@ import java.util.Map;
 @Slf4j
 @Service
 public class AppLogServiceImpl implements AppLogService {
-
     @Autowired
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
@@ -175,7 +175,6 @@ public class AppLogServiceImpl implements AppLogService {
         }
 
 
-
         private final SearchHits<AppLog> getSearchHits() {
             NativeSearchQuery nativeSearchQuery = getNativeSearchQuery(esPage, appLog);
             this.pageable = nativeSearchQuery.getPageable();
@@ -203,10 +202,13 @@ public class AppLogServiceImpl implements AppLogService {
             SearchHitsImpl<AppLog> searchHitsImpl = (SearchHitsImpl<AppLog>) searchHits;
             CommonPage<AppLog> commonPage = SearchResultHelper.toPage(searchHits, pageable);
             StringBuilder stringBuilder = new StringBuilder();
-            String format = "%s %s %s %s  %s [%s] %s:%s";
+            String format = "%s %s %s  %s [%s] %s:%s";
             List<AppLog> appLogList = commonPage.getList();
+            Calendar calendar = Calendar.getInstance();
             for (AppLog log : appLogList) {
-                stringBuilder.append(String.format(format, log.getProjectName(), log.getSourceFrom(), DateUtil.formatDate(log.getCreateTime()), log.getLevel(), log.getPid(), log.getThreadName(), log.getClazz(), log.getMessage()));
+                calendar.setTime(log.getCreateTime());
+                calendar.add(Calendar.HOUR, -8);
+                stringBuilder.append(String.format(format, log.getSourceFrom(), DateUtil.formatDate(calendar.getTime()), log.getLevel(), log.getPid(), log.getThreadName(), log.getClazz(), log.getMessage()));
                 stringBuilder.append("\r");
             }
             ResponseData responseData = ResponseData.getSuccessInstance();

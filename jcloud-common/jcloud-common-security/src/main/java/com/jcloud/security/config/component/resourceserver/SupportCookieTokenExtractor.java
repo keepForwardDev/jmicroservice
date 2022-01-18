@@ -12,9 +12,11 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2021/4/20
  */
 public class SupportCookieTokenExtractor extends BearerTokenExtractor {
+
+
     @Override
     protected String extractHeaderToken(HttpServletRequest request) {
-        String token =  super.extractHeaderToken(request);
+        String token = super.extractHeaderToken(request);
         if (StringUtils.isBlank(token)) { //判断有无cookie
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {

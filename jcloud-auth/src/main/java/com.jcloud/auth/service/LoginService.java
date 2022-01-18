@@ -95,6 +95,7 @@ public class LoginService {
      * @return
      */
     public ResponseData sendSmsCode(String mobile) {
+
         ResponseData commonRespon = new ResponseData();
         if (StringUtils.isBlank(mobile)) {
             commonRespon.setMsg("未填写手机号");
@@ -110,6 +111,14 @@ public class LoginService {
         String redisCode = stringRedisTemplate.opsForValue().get(redisKey);
         if (StringUtils.isEmpty(redisCode)) {
             redisCode = RandomUtil.randomNumbers(6);
+        } else {
+            Long expireMin = stringRedisTemplate.getExpire(redisKey, TimeUnit.MINUTES);
+            if (expireMin < 4) {
+                redisCode = RandomUtil.randomNumbers(6);
+            } else {
+                return commonRespon;
+            }
+
         }
         boolean send= SendMsgUtil.sendMobileCode(mobile,new String[]{redisCode,String.valueOf(SecurityConstants.CODE_TIME)});
         if (send) {

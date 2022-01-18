@@ -13,11 +13,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.jcloud.dictionary.api.DictionaryProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author jiaxm
@@ -40,21 +43,36 @@ public class DictionaryPropertyWriter extends BeanPropertyWriter {
      */
     private String dictionaryConst;
 
-    public DictionaryPropertyWriter(String name, BeanPropertyWriter delegated, String dictionaryConst) {
+    /**
+     * 多选分隔符
+     */
+    private String valueSeparator;
+
+    public DictionaryPropertyWriter(String name, BeanPropertyWriter delegated, String dictionaryConst, String valueSeparator) {
         Assert.notNull(name, "name is require");
         Assert.notNull(name, "dictionaryConst is require");
         this.delegated = delegated;
         this.name = name;
         this.dictionaryConst = dictionaryConst;
+        this.valueSeparator = valueSeparator;
     }
 
 
     @Override
     public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception {
-        final Long value = (Long) delegated.get(bean);
+        Object value = delegated.get(bean);
         String dictionaryValue = null;
         if (value != null) {
-            dictionaryValue = DictionaryProvider.service(dictionaryConst).getNameById(value);
+            if (StringUtils.isBlank(valueSeparator)) {
+                dictionaryValue = DictionaryProvider.service(dictionaryConst).getNameById((Long) value);
+            } else { // 多选
+                String tmp = value.toString();
+                if (StringUtils.isNotBlank(tmp)) {
+                    List<String> dicValues = DictionaryProvider.service(dictionaryConst).getNameByIds(Stream.of(tmp.split(",")).map(r -> Long.valueOf(r)).collect(Collectors.toList()));
+                    dictionaryValue = StringUtils.join(dicValues, valueSeparator);
+                }
+
+            }
         }
         if (value == null || dictionaryValue == null) {
             if (_nullSerializer != null) {

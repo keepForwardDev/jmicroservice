@@ -17,6 +17,9 @@ import java.util.Date;
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "d_full_city", comment = "省市区-字典")
 public class FullCityEntity extends DictionaryBase {
+
+    private static final Long serialVersionUID = -21993193804594922l;
+
     private Date createTime;
     private Long createUserId;
     private Integer deleted;

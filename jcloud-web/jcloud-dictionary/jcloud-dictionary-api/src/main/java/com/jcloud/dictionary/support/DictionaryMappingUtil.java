@@ -1,6 +1,7 @@
 package com.jcloud.dictionary.support;
 
 import cn.hutool.cache.impl.LRUCache;
+import cn.hutool.core.collection.CollectionUtil;
 import com.jcloud.common.bean.ItemNode;
 import com.jcloud.common.util.ReflectUtil;
 import com.jcloud.common.util.TypeUtil;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 /**
  * 字典映射解析工具
+ *
  * @author jiaxm
  * @date 2021/4/30
  */
@@ -50,9 +52,12 @@ public class DictionaryMappingUtil {
      */
     public static <T> void dictionaryMapping(List<T> list, Map<String, Set<Long>> dictionaryValueMap) {
         Assert.notNull(list, "list is required");
-        if(list.size()>0){
+        if (list.size() > 0) {
             Class clazz = list.get(0).getClass();
             Map<String, List<DictionaryField>> dictionaryFieldMap = getDictionaryFields(clazz);
+            if (CollectionUtil.isEmpty(dictionaryFieldMap)) {
+                return;
+            }
             // 返回的结果映射
             Map<String, Map<Long, String>> dictionaryMap = new HashMap<>();
             // 查询字段值
@@ -72,11 +77,12 @@ public class DictionaryMappingUtil {
                                 String value = TypeUtil.toStr(dictionaryField.getSource().get(t));
                                 if (StringUtils.isNotBlank(value)) {
                                     String[] valueArray = value.split(dictionaryField.getSourceSeparator());
-                                    String values = StringUtils.EMPTY;
+                                    List<String> transArray = new ArrayList<>();
                                     for (String s : valueArray) {
-                                        values += StringUtils.defaultString(dictionary.get(Long.valueOf(s)));
+                                        String v = StringUtils.defaultString(dictionary.get(Long.valueOf(s)));
+                                        transArray.add(v);
                                     }
-                                    dictionaryField.getTarget().set(t, dictionary.get(StringUtils.defaultIfBlank(values, null)));
+                                    dictionaryField.getTarget().set(t, StringUtils.defaultIfBlank(StringUtils.join(transArray, dictionaryField.getSourceSeparator()), null));
                                 }
                             }
                         } catch (IllegalAccessException e) {
@@ -127,6 +133,7 @@ public class DictionaryMappingUtil {
 
     /**
      * 获取类上标注有 DictionaryMapping 注解的field，并且根据字典分组
+     *
      * @param clazz
      * @return
      */
@@ -164,18 +171,16 @@ public class DictionaryMappingUtil {
     }
 
     /**
-     *
      * @param itemNodes
      * @param dictionaryConst
      */
     public void itemNodeMapping(List<ItemNode> itemNodes, String dictionaryConst) {
         Set<Long> list = itemNodes.stream().map(r -> r.getId()).collect(Collectors.toSet());
-        Map<Long,String> map = DictionaryProvider.service(dictionaryConst).getNameMap(list);
+        Map<Long, String> map = DictionaryProvider.service(dictionaryConst).getNameMap(list);
         itemNodes.forEach(r -> {
             r.setName(map.get(r.getId()));
         });
     }
-
 
 
     public static class DictionaryField {

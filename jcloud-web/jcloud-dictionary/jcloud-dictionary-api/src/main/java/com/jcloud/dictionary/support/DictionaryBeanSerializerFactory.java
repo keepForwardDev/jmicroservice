@@ -47,7 +47,7 @@ public class DictionaryBeanSerializerFactory extends BeanSerializerFactory {
                 if (!dictionaryTrans.useId()) {
                     iterator.remove();
                 }
-                BeanPropertyWriter dicPropertyWriter = new DictionaryPropertyWriter(StringUtils.defaultIfBlank(dictionaryTrans.fieldName(), field.getName() + "Str"), propertyWriter, dictionaryTrans.dictionaryConst());
+                BeanPropertyWriter dicPropertyWriter = new DictionaryPropertyWriter(StringUtils.defaultIfBlank(dictionaryTrans.fieldName(), field.getName() + "Str"), propertyWriter, dictionaryTrans.dictionaryConst(), dictionaryTrans.separator());
                 iterator.add(dicPropertyWriter);
             }
         }
